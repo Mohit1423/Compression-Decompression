@@ -1,13 +1,14 @@
 import { useState } from 'react'
-
-
+import { Button } from "@/components/ui/button"
 function App() {
   
 
   return (
-    <>
-     <p>Test</p>
-    </>
+  
+    <div >
+      <p className = "text-green-600 font-bol text-2xl">Hello</p>
+      <Button>Button</Button>
+    </div>
   )
 }
 
