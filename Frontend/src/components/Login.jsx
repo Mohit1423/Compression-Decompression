@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { setUser } from '../redux/user.slice.js';
+import { useDispatch } from 'react-redux'
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +12,9 @@ const Login = () => {
     password: '',
   })
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
@@ -17,7 +22,9 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     console.log('Login data:', formData)
-    
+    //Redux part
+    dispatch(setUser(formData));
+    navigate("/Dashboard");
   }
 
   return (
