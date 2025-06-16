@@ -41,9 +41,39 @@ function DecompressSection() {
       toast.error("Please select a file to decompress.");
       return;
     }
+
+    const parsed = parseCompressedFilename(decompressFile.name);
+    if (!parsed) {
+      toast.error("Invalid compressed file name.");
+      return;
+    }
+
+    try{
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("file", decompressFile);
+      formData.append("algorithm", parsed.algorithm);
+      formData.append("originalExt", parsed.originalExt);
+      
+      const res = await axios.post("http://localhost:4000/api/v1/user/decompress", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        responseType: "arraybuffer", // important for binary file response
+      });
+      setDecompressedBlob(true)
+    }catch(err){
+      console.error(err);
+      toast.error("Decompression failed!");
+    }finally{
+      setLoading(false);
+    }
+
+
+
     
     
-    setDecompressedBlob(true)
+    
   }
 
   const handleDecompressDownload = async () => {

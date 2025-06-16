@@ -41,3 +41,13 @@ export const Compress = async (req, res) => {
         return res.status(500).json({ message: "Server Error", error });
     }
 }
+
+export const Decompress = async (req, res) => {
+    const file = req.file;
+    const algorithm = req.body.algorithm;
+    const originalExt = req.body.originalExt;
+    
+    console.log(file,algorithm,originalExt);
+    
+
+}
