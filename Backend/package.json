@@ -7,10 +7,12 @@
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
     "cloudinary": "^2.6.1",
+    "compressjs": "^1.0.3",
     "cors": "^2.8.5",
     "datauri": "^4.1.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "huffman-encoder": "^0.2.4",
     "mongoose": "^8.15.2",
     "multer": "^2.0.1"
   }

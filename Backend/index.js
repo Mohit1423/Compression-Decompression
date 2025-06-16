@@ -3,26 +3,27 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import connectDB from './utils/db.js';
+import userRoutes from './/routes/user.routes.js';
 
 
 
 const app = express();
-const port= process.env.PORT || 3000;
+const port= process.env.PORT || 4000;
 
 const corsOptions = {
     origin: "http://localhost:5173",
     credentials:true,
-
+    exposedHeaders: ["Content-Disposition"], 
 }
 
-//Middleware
+// //Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions)); 
 
 
 //Routes
-
+app.use('/api/v1/user',userRoutes);
 
 
 
