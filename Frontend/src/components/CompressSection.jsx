@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-hot-toast";
-
+import { useDispatch } from "react-redux";
+import { addHistoryEntry } from "../redux/history.slice.js";
 
 const CompressSection = () => {
   const allowedTypes = [
@@ -40,6 +41,27 @@ const CompressSection = () => {
   const [compressedBlob, setCompressedBlob] = useState(null);
   const [filename, setFilename] = useState("compressed.rle");
   const MAX_SIZE_MB = 3;
+  const dispatch = useDispatch();
+
+  const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    if (!file) return reject("No file provided");
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+  };
+
+  const blobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+      if (!blob) return reject("No blob provided");
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(blob);
+    });
+  };
   const handleCompress = async () => {
     if (!file || !algorithm) {
       toast.error("Please select a file and algorithm");
@@ -108,7 +130,20 @@ const CompressSection = () => {
         compressionRatio: (blob.size / file.size).toFixed(3),
         processingTime: duration,
       });
-      console.log(Stats);
+
+
+    const originalBase64 = await fileToBase64(file);
+    const compressedBase64 = await blobToBase64(blob);
+
+     dispatch(
+      addHistoryEntry({
+        name: file.name,
+        algorithm : algorithm,
+        originalBase64: originalBase64,
+        compressedBase64: compressedBase64,
+      })
+    );
+
       toast.success("Download ready!");
     } catch (error) {
       toast.error("Compression failed");
