@@ -56,6 +56,18 @@ const CompressSection = () => {
       toast.error(`File too large! Max allowed size is ${MAX_SIZE_MB}MB.`);
       return;
     }
+    
+    const isAlreadyCompressed = (fileName) => {
+      const pattern = /_compressed_.*\.(rle|huff)$/i;
+      return pattern.test(fileName);
+    };
+
+    if (isAlreadyCompressed(file.name)) {
+      toast.error(
+        "This file seems to be already compressed. Please choose an uncompressed file."
+      );
+      return;
+    }
 
     setLoading(true);
     const start = performance.now();
@@ -84,6 +96,7 @@ const CompressSection = () => {
       const ext = algorithm === "huffman" ? "huff" : "rle";
       const originalExt = file.name.split(".").pop();
       const baseName = file.name.split(".").slice(0, -1).join(".");
+      
       setFilename(`${baseName}_compressed_${originalExt}.${ext}`);
 
       const end = performance.now();

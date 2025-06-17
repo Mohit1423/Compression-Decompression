@@ -1,40 +1,53 @@
-import React,{ useEffect, useState, useRef} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
-
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 function DecompressSection() {
-
   const [decompressFile, setDecompressFile] = useState(null);
   const [decompressedBlob, setDecompressedBlob] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [Stats, setStats] = useState(null);
+  const [filename, setFilename] = useState(null);
 
+  function parseCompressedFilename(fileName) {
+    const lastDot = fileName.lastIndexOf(".");
+    const extension = fileName.slice(lastDot + 1); // rle or huff
 
-  function parseCompressedFilename(filename) {
-  const lastDotIndex = filename.lastIndexOf(".");
-  if (lastDotIndex === -1) return null;
+    if (!["rle", "huff"].includes(extension)) {
+      toast.error("Invalid compressed file extension.");
+    }
 
-  const algoExt = filename.slice(lastDotIndex + 1).toLowerCase(); 
-  if (algoExt !== "rle" && algoExt !== "huff") return null;
+    const nameWithoutExt = fileName.slice(0, lastDot);
+    const compressedIndex = nameWithoutExt.lastIndexOf("_compressed_");
 
-  const mainName = filename.slice(0, lastDotIndex);
+    if (compressedIndex === -1) {
+      throw new Error("Invalid compressed file name.");
+    }
 
-  const compressedSuffix = "_compressed_";
-  const suffixIndex = mainName.lastIndexOf(compressedSuffix);
-  if (suffixIndex === -1) return null;
+    const base = nameWithoutExt.slice(0, compressedIndex);
+    let extPart = nameWithoutExt.slice(compressedIndex + "_compressed_".length);
 
-  const originalName = mainName.slice(0, suffixIndex);
-  const originalExt = mainName.slice(suffixIndex + compressedSuffix.length);
+    if (extPart.includes(" (")) {
+      extPart = extPart.split(" (")[0];
+    }
 
-  return {
-    originalName,
-    originalExt,
-    algorithm: algoExt,
-  };
-}
-
+    return {
+      originalName: base,
+      originalExt: extPart,
+      algorithm: extension,
+    };
+  }
 
   const handleDecompress = async () => {
     if (!decompressFile) {
@@ -48,37 +61,60 @@ function DecompressSection() {
       return;
     }
 
-    try{
+    try {
       setLoading(true);
+      const start = performance.now();
       const formData = new FormData();
       formData.append("file", decompressFile);
       formData.append("algorithm", parsed.algorithm);
       formData.append("originalExt", parsed.originalExt);
-      
-      const res = await axios.post("http://localhost:4000/api/v1/user/decompress", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        responseType: "arraybuffer", // important for binary file response
+
+      const response = await axios.post(
+        "http://localhost:4000/api/v1/user/decompress",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          responseType: "arraybuffer", // important for binary file response
+        }
+      );
+      const fileBuffer = response.data;
+      const blob = new Blob([fileBuffer]);
+      const end = performance.now();
+      const duration = (end - start).toFixed(2) + "ms";
+
+      setDecompressedBlob(blob);
+      setFilename(parsed.originalName + "." + parsed.originalExt);
+      setStats({
+        compressedSize: decompressFile.size, // size of the compressed file user uploaded
+        originalSize: blob.size, // size after decompression (resulting blob)
+        decompressionRatio: (blob.size / decompressFile.size).toFixed(3),
+        processingTime: duration,
       });
-      setDecompressedBlob(true)
-    }catch(err){
+
+      console.log(Stats);
+      toast.success("Decompression successful!");
+    } catch (err) {
       console.error(err);
       toast.error("Decompression failed!");
-    }finally{
+    } finally {
       setLoading(false);
     }
-
-
-
-    
-    
-    
-  }
+  };
 
   const handleDecompressDownload = async () => {
-    console.log("Downloading");
-  }
+    if (!decompressedBlob) return;
+    const url = URL.createObjectURL(decompressedBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      a.remove();
+    }, 200);
+  };
 
   const decompressFileRef = useRef(null);
   return (
@@ -104,14 +140,11 @@ function DecompressSection() {
                 Choose File
               </button>
 
-              
               <span className="text-md text-neutral-400">
                 {decompressFile?.name || "No file selected"}
               </span>
             </div>
           </div>
-
-        
 
           {/* Submit and Download Buttons */}
           <div className="flex gap-5">
@@ -131,6 +164,72 @@ function DecompressSection() {
             </Button>
           </div>
         </div>
+        {Stats && (
+          <>
+            <p className="text-sm text-yellow-400 font-medium mt-2">
+              ⚠️ Don’t change the file name after compression – it helps
+              decompression detect the file type correctly.
+            </p>
+
+            <div className="mt-8 p-4 rounded-xl bg-[#2a303c] text-gray-100 shadow-lg">
+              <h2 className="text-xl font-bold mb-4 text-green-400">
+                📊 Decompression Statistics
+              </h2>
+
+              <p>
+                📦{" "}
+                <span className="font-semibold text-gray-300">
+                  Compressed Size:
+                </span>{" "}
+                {Stats.compressedSize} bytes
+              </p>
+              <p>
+                🗂️{" "}
+                <span className="font-semibold text-gray-300">
+                  Original Size:
+                </span>{" "}
+                {Stats.originalSize} bytes
+              </p>
+              <p>
+                📈{" "}
+                <span className="font-semibold text-gray-300">
+                  Decompression Ratio:
+                </span>{" "}
+                {Stats.decompressionRatio}
+              </p>
+              <p>
+                ⏱️{" "}
+                <span className="font-semibold text-gray-300">Time Taken:</span>{" "}
+                {Stats.processingTime}
+              </p>
+
+              <div className="h-72 mt-6">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={[
+                      { name: "Compressed", size: Stats.compressedSize },
+                      { name: "Original", size: Stats.originalSize },
+                    ]}
+                  >
+                    <XAxis dataKey="name" stroke="#ccc" />
+                    <YAxis stroke="#ccc" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#1d232a",
+                        borderColor: "#4b5563",
+                        color: "#fff",
+                      }}
+                      labelStyle={{ color: "#fff" }}
+                    />
+                    <Legend />
+                    <Bar dataKey="size" fill="#34d399" />{" "}
+                    {/* green-400 for decompression */}
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </>
   );

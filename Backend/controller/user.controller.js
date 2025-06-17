@@ -1,4 +1,4 @@
-import { rleCompress, rleCompressBytes } from "../utils/rle.js";
+import { rleCompress, rleCompressBytes, rleDecompressText, rleDecompressBytes } from "../utils/rle.js";
 import compressjs from 'compressjs';
 const { Huffman } = compressjs;
 
@@ -43,11 +43,43 @@ export const Compress = async (req, res) => {
 }
 
 export const Decompress = async (req, res) => {
+  try{
     const file = req.file;
     const algorithm = req.body.algorithm;
     const originalExt = req.body.originalExt;
-    
-    console.log(file,algorithm,originalExt);
+    const buffer = file.buffer;
+    console.log(buffer);
+
+     let decompressedBuffer;
+
+    if (algorithm === "rle") {
+      if (originalExt === "txt") {
+        // Handle text decompression
+        const compressedStr = buffer.toString("utf-8");
+        const decompressedText = rleDecompressText(compressedStr);
+        decompressedBuffer = Buffer.from(decompressedText, "utf-8");
+      } else {
+        // Handle binary decompression
+        const byteArray = new Uint8Array(buffer);
+        const decompressedBytes = rleDecompressBytes(byteArray);
+        decompressedBuffer = Buffer.from(decompressedBytes);
+      }
+
+
+    } else {
+      const decompressedArray = Huffman.decompressFile([...buffer]);
+      decompressedBuffer = Buffer.from(decompressedArray)
+    }
+    console.log(decompressedBuffer);
+    res.setHeader("Content-Disposition", `attachment; filename= decompressed.${originalExt}`);
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.send(decompressedBuffer);
+
+
+  }catch(error){
+    console.log(error);
+    return res.status(500).json({ message: "Server Error", error });
+  }
     
 
 }
