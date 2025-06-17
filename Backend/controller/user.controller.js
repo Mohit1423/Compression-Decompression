@@ -1,5 +1,7 @@
 import { rleCompress, rleCompressBytes, rleDecompressText, rleDecompressBytes } from "../utils/rle.js";
 import compressjs from 'compressjs';
+import bcrypt from 'bcryptjs';
+import User from "../models/user.model.js";
 const { Huffman } = compressjs;
 
 export const Compress = async (req, res) => {
@@ -81,5 +83,69 @@ export const Decompress = async (req, res) => {
     return res.status(500).json({ message: "Server Error", error });
   }
     
+
+}
+
+export const SignUp = async (req,res) => {
+  const { name, email, password } = req.body;
+ 
+   if (!name || !email || !password) {
+    return res.status(400).json({ message: "All fields are required",success:false });
+  }
+  try{
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(409).json({ message: "User Already Exists",sucess:false });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    await newUser.save();
+
+    res.status(201).json({ message: "User created successfully",success:true });
+  }catch(error){
+    console.log(error);
+    return res.status(500).json({ message: "Server Error", error });
+  }
+}
+export const Login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+  
+    if (!email || !password) {
+      return res.status(400).json({ message: "Please provide email and password" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "No account found with this email" });
+    }
+
+    
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server Error", error });
+  }
 
 }

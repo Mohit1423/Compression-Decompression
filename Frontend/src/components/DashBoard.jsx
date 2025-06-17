@@ -1,13 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import CompressSection from "./CompressSection";
 import DecompressSection from "./DecompressSection";
 import HistorySection from "./HistorySection";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 // import { DecompressSection } from "@/components/dashboard/DecompressSection";
 // import { HistorySection } from "@/components/dashboard/HistorySection";
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user.user);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  },[]);
+  
   return (
     <main className="min-h-screen bg-zinc-900 text-white py-10 px-4 md:px-10">
       

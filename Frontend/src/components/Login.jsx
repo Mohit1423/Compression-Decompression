@@ -5,6 +5,8 @@ import { Label } from '@/components/ui/label'
 import { Link, useNavigate } from 'react-router-dom'
 import { setUser } from '../redux/user.slice.js';
 import { useDispatch } from 'react-redux'
+import toast from 'react-hot-toast'
+import axios from 'axios'
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -19,12 +21,20 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Login data:', formData)
-    //Redux part
-    dispatch(setUser(formData));
-    navigate("/Dashboard");
+    try{
+      const response = await axios.post('http://localhost:4000/api/v1/user/login', formData);
+      toast.success("Account created successfully");
+      console.log(response);
+      dispatch(setUser(response.data.user));
+      navigate("/Dashboard");
+    }catch(error){
+      toast.error(error.response.data.message);
+      console.log(error);
+    }
+    
+    
   }
 
   return (
@@ -66,7 +76,7 @@ const Login = () => {
 
           <Button
             type="submit"
-            className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold transition-colors"
+            className="w-full mt-4 bg-green-500 hover:bg-green-600 cursor-pointer text-white font-semibold transition-colors"
           >
             Log In
           </Button>
