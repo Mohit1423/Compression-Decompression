@@ -40,7 +40,7 @@ const CompressSection = () => {
   const fileRef = useRef(null);
   const [compressedBlob, setCompressedBlob] = useState(null);
   const [filename, setFilename] = useState("compressed.rle");
-  const MAX_SIZE_MB = 3;
+  const MAX_SIZE_MB = 20;
   const dispatch = useDispatch();
 
   const fileToBase64 = (file) => {

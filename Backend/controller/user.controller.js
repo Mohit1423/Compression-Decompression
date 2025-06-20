@@ -22,8 +22,8 @@ export const Compress = async (req, res) => {
         const compressedText = rleCompress(text);
         compressed = Buffer.from(compressedText, "utf-8");
       } else {
-        const byteArray = [...fileBuffer];
-        const compressedBytes = rleCompressBytes(byteArray);
+        // const byteArray = [...fileBuffer];
+        const compressedBytes = rleCompressBytes(fileBuffer);
         compressed = Buffer.from(compressedBytes);
       }
     } else if (algorithm === "huffman") {
