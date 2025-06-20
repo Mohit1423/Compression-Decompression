@@ -14,10 +14,10 @@ export const Compress = async (req, res) => {
     const mimeType = file.mimetype;
     const originalName = file.originalname;
     console.log(fileBuffer);
-
+    console.log(mimeType);
     let compressed;
      if (algorithm === "rle") {
-      if (mimeType.startsWith("text")) {
+      if (mimeType === "text/plain" && originalName.toLowerCase().endsWith(".txt")) {
         const text = fileBuffer.toString("utf-8");
         const compressedText = rleCompress(text);
         compressed = Buffer.from(compressedText, "utf-8");
