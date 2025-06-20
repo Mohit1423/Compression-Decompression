@@ -107,7 +107,7 @@ npm install
 touch .env
 
 # Add your MongoDB URI and session secret in .env
----
+
 PORT = 4000
 MONGO_URL = your_mongodb_connection_string
 
