@@ -25,7 +25,7 @@ const Login = () => {
     e.preventDefault()
     try{
       const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/login`, formData);
-      toast.success("Account created successfully");
+      toast.success("Login successfull");
       dispatch(setUser(response.data.user));
       navigate("/Dashboard");
     }catch(error){

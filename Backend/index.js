@@ -11,7 +11,10 @@ const app = express();
 const port= process.env.PORT || 4000;
 
 const corsOptions = {
-    origin: "http://localhost:5173",
+    origin: [
+    "http://localhost:5173",
+    "https://compression-decompression-hedbq572e.vercel.app"
+  ],
     credentials:true,
     exposedHeaders: ["Content-Disposition"], 
 }
