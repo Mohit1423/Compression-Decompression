@@ -100,20 +100,20 @@ Supports compression and decompression of **any file type**, including but not l
 
 ## 🧪 Getting Started Locally
 
-### Backend Setup
+## Backend Setup
 
--cd Backend
--npm install
--touch .env
+- cd Backend
+- npm install
+- touch .env
 
 # Add your MongoDB URI and session secret in .env
 
-=PORT = 4000
--MONGO_URL = your_mongodb_connection_string
+- PORT = 4000
+- MONGO_URL = your_mongodb_connection_string
 
 
 ### Frontend Setup
 
--cd Frontend
--npm install
--npm run dev
+- cd Frontend
+- npm install
+- npm run dev
