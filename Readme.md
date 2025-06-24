@@ -105,6 +105,8 @@ Supports compression and decompression of **any file type**, including but not l
 - cd Backend
 - npm install
 - touch .env
+- Add the details to the .env
+- npm start / node index.js / nodemon index.js
 
 # Add your MongoDB URI and session secret in .env
 
