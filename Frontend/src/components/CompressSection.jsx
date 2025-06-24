@@ -99,7 +99,7 @@ const CompressSection = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/v1/user/compress",
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/user/compress`,
         formData,
         {
           headers: {

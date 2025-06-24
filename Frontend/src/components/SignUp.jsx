@@ -27,7 +27,7 @@ const Signup = () => {
     }
 
     try{
-      const response = await axios.post('http://localhost:4000/api/v1/user/signup', formData);
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/signup`, formData);
       toast.success("Account created successfully");
       navigate('/login');
     }catch(error){

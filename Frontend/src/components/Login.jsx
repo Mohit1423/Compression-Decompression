@@ -24,7 +24,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try{
-      const response = await axios.post('http://localhost:4000/api/v1/user/login', formData);
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/login`, formData);
       toast.success("Account created successfully");
       dispatch(setUser(response.data.user));
       navigate("/Dashboard");
