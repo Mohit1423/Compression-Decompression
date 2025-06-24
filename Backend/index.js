@@ -13,7 +13,7 @@ const port= process.env.PORT || 4000;
 const corsOptions = {
     origin: [
     "http://localhost:5173",
-    "https://compression-decompression-lhknsirur.vercel.app"
+    "https://compression-decompression.vercel.app"
   ],
     credentials:true,
     exposedHeaders: ["Content-Disposition"], 
