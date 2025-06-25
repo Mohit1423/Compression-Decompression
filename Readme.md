@@ -118,7 +118,12 @@ Supports compression and decompression of **any file type**, including but not l
 
 - cd Frontend
 - npm install
+- touch .env
+- To run the file locally set VITE_API_BASE_URL 
+  -  locally : http://localhost:4000 
+  -  hosted Backend : https://compression-decompression.onrender.com
 - npm run dev
+- 
 
 
 ## Deployed Links
